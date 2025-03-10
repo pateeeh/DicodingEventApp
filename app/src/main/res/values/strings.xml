@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Ujian Dicoding</string>
+    <string name="title_setting">Setting</string>
+    <string name="title_favorite">Favorite</string>
+    <string name="title_upcoming">Upcoming</string>
+    <string name="title_finished">Finished</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="favorite_event">Favorite Event</string>
+    <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</string>
+    <string name="name_event">Nama Event</string>
+    <string name="add_fav">Add to Favorite?</string>
+    <string name="summary">Ini Summary</string>
+    <string name="begin_time">Begin Time</string>
+    <string name="owner_name">Ini OwnerName</string>
+    <string name="end_time">End Time</string>
+    <string name="upcoming_event">Upcoming Event</string>
+    <string name="finished_event">Finished Events</string>
+    <string name="remove_fav">Are you sure want to remove from your favorite?</string>
+    <string name="remove_fav_success">Success Remove From Favorite</string>
+    <string name="added_fav_success">Success Add To Favorite</string>
+</resources>
