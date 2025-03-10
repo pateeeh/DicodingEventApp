@@ -33,4 +33,7 @@ data class ListEventsItem(
 
 	@field:SerializedName("endTime")
 	val endTime: String,
+
+	@field:SerializedName("isFinished")
+	val isFinished: Boolean = false
 ): Parcelable

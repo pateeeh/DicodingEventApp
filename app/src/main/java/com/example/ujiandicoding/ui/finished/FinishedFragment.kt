@@ -7,9 +7,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.ujiandicoding.data.repository.AppExecutors
 import com.example.ujiandicoding.data.repository.EventsRepository
 import com.example.ujiandicoding.data.response.ListEventsItem
-import com.example.ujiandicoding.data.utills.AppExecutors
 import com.example.ujiandicoding.databinding.FragmentFinishedBinding
 import com.example.ujiandicoding.ui.adapter.ListEventAdapter
 

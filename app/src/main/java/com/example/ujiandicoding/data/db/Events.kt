@@ -30,7 +30,19 @@ data class Events (
     var endTime: String? = null,
 
     @field:ColumnInfo(name = "isFavo")
-    var isFavo: Boolean
+    var isFavo: Boolean,
+
+    @field:ColumnInfo(name = "summary")
+    var summary: String? = null,
+
+    @field:ColumnInfo(name = "ownerName")
+    var ownerName: String? = null,
+
+    @field:ColumnInfo(name = "mediaCover")
+    var mediaCover: String? = null,
+
+    @field:ColumnInfo(name = "imageLogo")
+    var imageLogo: String? = null
 
 ): Parcelable
 

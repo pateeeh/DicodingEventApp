@@ -11,10 +11,11 @@ interface ApiService {
     @GET("events")
     fun getListEvents(): Call<ListEventResponse>
 
-    @GET("events?active=1")
-    fun getUpcomingEvents(): Call<ListEventResponse>
+    @GET("events")
+    fun getUpcomingEvents(@Query("active") active: Int = 1): Call<ListEventResponse>
 
-    @GET("events?active=0")
-    fun getFinishedEvents(): Call<ListEventResponse>
+    @GET("events")
+    fun getFinishedEvents(@Query("active") active: Int = 0): Call<ListEventResponse>
+
 
 }

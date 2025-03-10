@@ -1,10 +1,31 @@
 package com.example.ujiandicoding.data.repository
 
-import java.util.concurrent.ExecutorService
+import android.os.Handler
+import android.os.Looper
+import androidx.annotation.VisibleForTesting
+import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 
 class AppExecutors(
-    val diskIO: ExecutorService = Executors.newSingleThreadExecutor()
+    val diskIO: Executor,
+    val networkIO: Executor,
+    val mainThread: Executor
 ) {
-    fun diskIO(): ExecutorService = diskIO
+
+    constructor() : this(
+        Executors.newFixedThreadPool(THREAD_COUNT),
+        Executors.newFixedThreadPool(THREAD_COUNT),
+        MainThreadExecutor()
+    )
+
+    companion object {
+        private const val THREAD_COUNT = 3
+    }
+
+    private class MainThreadExecutor : Executor {
+        private val mainThreadHandler = Handler(Looper.getMainLooper())
+        override fun execute(command: Runnable) {
+            mainThreadHandler.post(command)
+        }
+    }
 }

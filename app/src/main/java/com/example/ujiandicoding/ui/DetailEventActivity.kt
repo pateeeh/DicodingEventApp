@@ -1,8 +1,10 @@
 package com.example.ujiandicoding.ui
 
 import android.os.Bundle
+import android.os.Parcelable
 import android.text.Html
 import android.util.Log
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -10,9 +12,9 @@ import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.example.ujiandicoding.R
 import com.example.ujiandicoding.data.db.Events
+import com.example.ujiandicoding.data.repository.AppExecutors
 import com.example.ujiandicoding.data.repository.EventsRepository
 import com.example.ujiandicoding.data.response.ListEventsItem
-import com.example.ujiandicoding.data.utills.AppExecutors
 import com.example.ujiandicoding.databinding.ActivityDetailEventBinding
 
 class DetailEventActivity : AppCompatActivity() {
@@ -29,24 +31,51 @@ class DetailEventActivity : AppCompatActivity() {
         binding = ActivityDetailEventBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Set Toolbar sebagai ActionBar
+        setSupportActionBar(binding.toolbar)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = "Detail Event"
+
         eventsRepository = EventsRepository(application, AppExecutors())
         detailViewModel = ViewModelProvider(this, DetailViewModelFactory(eventsRepository))[DetailViewModel::class.java]
 
-        eventData = intent.getParcelableExtra<ListEventsItem>(EXTRA_DATA)
-        if (eventData != null) {
-            Log.d("DetailEventActivity", "User Data Received: $eventData")
-            eventId = eventData!!.id
-
-            Glide.with(this)
-                .load(eventData!!.mediaCover)
-                .into(binding.image)
-            binding.tvNameEvent.text = eventData!!.name
-            val cleanDesc = eventData!!.description.replace(Regex("<img[^>]*>"), "")
-            binding.tvDesc.text = Html.fromHtml(cleanDesc, Html.FROM_HTML_MODE_LEGACY)
-            binding.tvSummary.text = eventData!!.summary
-            binding.tvOwnerName.text = eventData!!.ownerName
-            binding.tvBeginTime.text = eventData!!.beginTime
-            binding.tvEndTime.text = eventData!!.endTime
+        val data = intent.getParcelableExtra<Parcelable>(EXTRA_DATA)
+        if (data != null) {
+            when (data) {
+                is Events -> {
+                    // Data adalah objek Events
+                    eventId = data.id
+                    Glide.with(this)
+                        .load(data.image)
+                        .into(binding.image)
+                    binding.tvNameEvent.text = data.name
+                    val cleanDesc = data.description?.replace(Regex("<img[^>]*>"), "")
+                    binding.tvDesc.text = Html.fromHtml(cleanDesc, Html.FROM_HTML_MODE_LEGACY)
+                    binding.tvSummary.text = ""
+                    binding.tvOwnerName.text = ""
+                    binding.tvBeginTime.text = data.beginTime
+                    binding.tvEndTime.text = data.endTime
+                }
+                is ListEventsItem -> {
+                    // Data adalah objek ListEventsItem
+                    eventData = data
+                    eventId = data.id
+                    Glide.with(this)
+                        .load(data.imageLogo)
+                        .into(binding.image)
+                    binding.tvNameEvent.text = data.name
+                    val cleanDesc = data.description.replace(Regex("<img[^>]*>"), "")
+                    binding.tvDesc.text = Html.fromHtml(cleanDesc, Html.FROM_HTML_MODE_LEGACY)
+                    binding.tvSummary.text = data.summary
+                    binding.tvOwnerName.text = data.ownerName
+                    binding.tvBeginTime.text = data.beginTime
+                    binding.tvEndTime.text = data.endTime
+                }
+                else -> {
+                    // Tipe data tidak dikenal
+                    Log.e("DetailEventActivity", "Unknown data type received")
+                }
+            }
 
             // Observe isFavorited LiveData
             detailViewModel.isEventFavorited(eventId).observe(this) { favorited ->
@@ -80,33 +109,54 @@ class DetailEventActivity : AppCompatActivity() {
 
     private fun showDeleteConfirmationDialog() {
         AlertDialog.Builder(this)
-            .setMessage(R.string.remove_fav)
-            .setPositiveButton("Yes") { _, _ ->
+            .setTitle("Konfirmasi")
+            .setMessage("Apa kamu yakin ingin menghapus dari favorit?")
+            .setPositiveButton("Ya") { _, _ ->
                 // Delete dari favorit
                 val event = Events(
                     id = eventId,
                     name = binding.tvNameEvent.text.toString(),
                     description = binding.tvDesc.text.toString(),
                     image = eventData?.imageLogo ?: "",
+                    beginTime = eventData?.beginTime ?: "",
+                    endTime = eventData?.endTime ?: "",
                     isFavo = false
                 )
                 detailViewModel.delete(event)
-                Toast.makeText(this, R.string.remove_fav_success, Toast.LENGTH_SHORT).show()
+                isFavorited = false
+                setFavoriteIcon(isFavorited)
+                Toast.makeText(this, "Berhasil dihapus dari favorit", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("No") { dialog, _ -> dialog.dismiss() }
+            .setNegativeButton("Tidak") { dialog, _ -> dialog.dismiss() }
             .show()
     }
 
     private fun addToFavorites() {
+        // Tambahkan ke favorit
         val event = Events(
             id = eventId,
             name = binding.tvNameEvent.text.toString(),
             description = binding.tvDesc.text.toString(),
             image = eventData?.imageLogo ?: "",
+            beginTime = eventData?.beginTime ?: "",
+            endTime = eventData?.endTime ?: "",
             isFavo = true
         )
         detailViewModel.insert(event)
-        Toast.makeText(this, getString(R.string.added_fav_success), Toast.LENGTH_SHORT).show()
+        isFavorited = true
+        setFavoriteIcon(isFavorited)
+        Toast.makeText(this, "Berhasil ditambahkan ke favorit", Toast.LENGTH_SHORT).show()
+    }
+
+    // Handle tombol back di Toolbar
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     companion object {
