@@ -37,7 +37,9 @@ class EventsRepository(application: Application, private val appExecutors: AppEx
 
     fun getAllEvents(): LiveData<List<Events>> = mEventsDao.getAllEvents()
 
-    fun isEventFavorited(eventId: Int): LiveData<Boolean> = mEventsDao.isEventFavorited(eventId)
+    fun isEventFavorited(eventId: Int): LiveData<Boolean> {
+        return mEventsDao.isEventFavorited(eventId)
+    }
 
     fun getFavoriteEvents(): LiveData<List<Events>> = mEventsDao.getFavoriteEvents()
 
@@ -65,7 +67,7 @@ class EventsRepository(application: Application, private val appExecutors: AppEx
                                 ownerName = it.ownerName,
                                 mediaCover = it.mediaCover,
                                 imageLogo = it.imageLogo,
-                                isFavo = true
+                                isFavo = false
                             )
                         }
                         if (result != null) {

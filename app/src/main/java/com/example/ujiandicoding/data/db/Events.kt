@@ -30,7 +30,7 @@ data class Events (
     var endTime: String? = null,
 
     @field:ColumnInfo(name = "isFavo")
-    var isFavo: Boolean,
+    var isFavo: Boolean = true,
 
     @field:ColumnInfo(name = "summary")
     var summary: String? = null,

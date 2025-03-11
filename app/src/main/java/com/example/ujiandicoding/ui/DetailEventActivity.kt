@@ -76,9 +76,10 @@ class DetailEventActivity : AppCompatActivity() {
                     Log.e("DetailEventActivity", "Unknown data type received")
                 }
             }
-
             // Observe isFavorited LiveData
+            // Pindahkan pemanggilan observe ke sini, setelah eventId diinisialisasi
             detailViewModel.isEventFavorited(eventId).observe(this) { favorited ->
+                Log.d("DetailEventActivity", "isEventFavorited observe: favorited = $favorited")
                 isFavorited = favorited
                 setFavoriteIcon(isFavorited)
             }
@@ -98,6 +99,7 @@ class DetailEventActivity : AppCompatActivity() {
     }
 
     private fun setFavoriteIcon(isFavorited: Boolean) {
+        Log.d("DetailEventActivity", "setFavoriteIcon: isFavorited = $isFavorited")
         if (isFavorited) {
             binding.fabFav.setImageResource(R.drawable.ic_favorite)
             binding.fabFav.contentDescription = getString(R.string.remove_fav)
@@ -105,30 +107,6 @@ class DetailEventActivity : AppCompatActivity() {
             binding.fabFav.setImageResource(R.drawable.ic_favorite_outline)
             binding.fabFav.contentDescription = getString(R.string.add_fav)
         }
-    }
-
-    private fun showDeleteConfirmationDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("Konfirmasi")
-            .setMessage("Apa kamu yakin ingin menghapus dari favorit?")
-            .setPositiveButton("Ya") { _, _ ->
-                // Delete dari favorit
-                val event = Events(
-                    id = eventId,
-                    name = binding.tvNameEvent.text.toString(),
-                    description = binding.tvDesc.text.toString(),
-                    image = eventData?.imageLogo ?: "",
-                    beginTime = eventData?.beginTime ?: "",
-                    endTime = eventData?.endTime ?: "",
-                    isFavo = false
-                )
-                detailViewModel.delete(event)
-                isFavorited = false
-                setFavoriteIcon(isFavorited)
-                Toast.makeText(this, "Berhasil dihapus dari favorit", Toast.LENGTH_SHORT).show()
-            }
-            .setNegativeButton("Tidak") { dialog, _ -> dialog.dismiss() }
-            .show()
     }
 
     private fun addToFavorites() {
@@ -143,9 +121,32 @@ class DetailEventActivity : AppCompatActivity() {
             isFavo = true
         )
         detailViewModel.insert(event)
-        isFavorited = true
+        isFavorited = true // Ubah menjadi true saat menambahkan ke favorit
         setFavoriteIcon(isFavorited)
-        Toast.makeText(this, "Berhasil ditambahkan ke favorit", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.added_fav_success), Toast.LENGTH_SHORT).show()
+    }
+
+    private fun showDeleteConfirmationDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Konfirmasi")
+            .setMessage("Apa kamu yakin ingin menghapus dari favorit?")
+            .setPositiveButton("Ya") { _, _ ->
+                val event = Events(
+                    id = eventId,
+                    name = binding.tvNameEvent.text.toString(),
+                    description = binding.tvDesc.text.toString(),
+                    image = eventData?.imageLogo ?: "",
+                    beginTime = eventData?.beginTime ?: "",
+                    endTime = eventData?.endTime ?: "",
+                    isFavo = false
+                )
+                detailViewModel.delete(event)
+                isFavorited = false // Ubah menjadi false saat menghapus dari favorit
+                setFavoriteIcon(isFavorited)
+                Toast.makeText(this, "Berhasil dihapus dari favorit", Toast.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Tidak") { dialog, _ -> dialog.dismiss() }
+            .show()
     }
 
     // Handle tombol back di Toolbar

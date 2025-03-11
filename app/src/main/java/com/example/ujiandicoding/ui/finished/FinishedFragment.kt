@@ -73,7 +73,7 @@ class FinishedFragment : Fragment() {
         })
 
         finishedViewModel.searchedEvents.observe(viewLifecycleOwner) { events ->
-            listFinishedAdapter.submitList(events) // Pastikan adapter sudah diinisialisasi
+            listFinishedAdapter.submitList(events)
         }
     }
 

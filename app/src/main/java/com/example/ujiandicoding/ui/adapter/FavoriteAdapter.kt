@@ -1,6 +1,7 @@
 package com.example.ujiandicoding.ui.adapter
 
 import android.content.Intent
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -17,7 +18,8 @@ class FavoriteAdapter : ListAdapter<Events, FavoriteAdapter.MyViewHolder>(DIFF_C
     class MyViewHolder(val binding: CardListEventBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(event: Events) {
             binding.tvNameEvent.text = event.name
-            binding.tvDescEvent.text = event.description
+            val cleanDesc = event.description?.replace(Regex("<img[^>]*>"), "")
+            binding.tvDescEvent.text = Html.fromHtml(cleanDesc, Html.FROM_HTML_MODE_LEGACY)
             Glide.with(itemView.context)
                 .load(event.image)
                 .into(binding.img)

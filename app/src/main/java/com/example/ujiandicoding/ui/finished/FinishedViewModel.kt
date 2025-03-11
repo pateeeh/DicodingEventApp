@@ -49,10 +49,6 @@ class FinishedViewModel(private val eventsRepository: EventsRepository) : ViewMo
         }
     }
 
-    fun searchEvents(keyword: String) {
-        searchQuery.value = keyword
-    }
-
     fun setSearchQuery(query: String) {
         searchQuery.value = query
     }
