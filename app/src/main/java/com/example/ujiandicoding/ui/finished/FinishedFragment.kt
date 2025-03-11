@@ -1,17 +1,20 @@
 package com.example.ujiandicoding.ui.finished
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.appcompat.widget.SearchView
 import com.example.ujiandicoding.data.repository.AppExecutors
 import com.example.ujiandicoding.data.repository.EventsRepository
 import com.example.ujiandicoding.data.response.ListEventsItem
 import com.example.ujiandicoding.databinding.FragmentFinishedBinding
 import com.example.ujiandicoding.ui.adapter.ListEventAdapter
+import com.example.ujiandicoding.ui.adapter.ListFinishedAdapter
 
 class FinishedFragment : Fragment() {
 
@@ -19,6 +22,7 @@ class FinishedFragment : Fragment() {
     private val binding get() = _binding!!
     private lateinit var finishedViewModel: FinishedViewModel
     private lateinit var eventsRepository: EventsRepository
+    private lateinit var listFinishedAdapter: ListFinishedAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,14 +35,19 @@ class FinishedFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // Inisialisasi EventsRepository
         eventsRepository = EventsRepository(requireActivity().application, AppExecutors())
-        // Buat factory dengan EventsRepository
         val factory = FinishedViewModelFactory(eventsRepository)
-        // Dapatkan ViewModel dengan factory
-        finishedViewModel = ViewModelProvider(this, factory).get(FinishedViewModel::class.java)
+        finishedViewModel = ViewModelProvider(this, factory)[FinishedViewModel::class.java]
 
-        // Observe data dari ViewModel
+        listFinishedAdapter = ListFinishedAdapter { event ->
+            Toast.makeText(requireContext(), "Favorit: ${event.name}", Toast.LENGTH_SHORT).show()
+        }
+
+        binding.rvListEvent.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = listFinishedAdapter
+        }
+
         finishedViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
             showLoading(isLoading)
         }
@@ -46,8 +55,26 @@ class FinishedFragment : Fragment() {
             setEventList(eventList)
         }
 
-        // Set layout manager untuk RecyclerView
-        _binding?.rvListEvent?.layoutManager = LinearLayoutManager(requireContext(), LinearLayoutManager.VERTICAL, false)
+        finishedViewModel.searchedEvents.observe(viewLifecycleOwner) { eventList ->
+            setEventList(eventList)
+        }
+
+        val searchView = binding.searchBar
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                query?.let { finishedViewModel.setSearchQuery(it) }
+                return true
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                newText?.let { finishedViewModel.setSearchQuery(it) }
+                return true
+            }
+        })
+
+        finishedViewModel.searchedEvents.observe(viewLifecycleOwner) { events ->
+            listFinishedAdapter.submitList(events) // Pastikan adapter sudah diinisialisasi
+        }
     }
 
     override fun onDestroyView() {
@@ -56,9 +83,7 @@ class FinishedFragment : Fragment() {
     }
 
     private fun setEventList(dataEvent: List<ListEventsItem>?) {
-        val adapter = ListEventAdapter()
-        adapter.submitList(dataEvent)
-        binding.rvListEvent.adapter = adapter
+        listFinishedAdapter.submitList(dataEvent)
     }
 
     private fun showLoading(isLoading: Boolean) {

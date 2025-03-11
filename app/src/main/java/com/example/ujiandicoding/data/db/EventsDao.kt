@@ -27,4 +27,8 @@ interface EventsDao {
 
     @Update
     fun update(events: Events)
+
+    @Query("SELECT * FROM events WHERE name LIKE '%' || :keyword || '%' OR description LIKE '%' || :keyword || '%'")
+    fun searchEvents(keyword: String): LiveData<List<Events>>
+
 }

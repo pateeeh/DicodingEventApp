@@ -38,4 +38,12 @@ class ListFinishedAdapter(private val onFavoriteClick: (ListEventsItem) -> Unit)
         val binding = CardListEventBinding.inflate(android.view.LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
+
+    inner class EventViewHolder(private val binding: CardListEventBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(event: ListEventsItem) {
+            binding.tvNameEvent.text = event.name
+            binding.tvDescEvent.text = event.description
+        }
+    }
 }
