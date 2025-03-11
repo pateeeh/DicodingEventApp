@@ -2,6 +2,7 @@ package com.example.ujiandicoding.ui.adapter
 
 import android.content.Intent
 import android.text.Html
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -31,19 +32,10 @@ class ListFinishedAdapter(private val onFavoriteClick: (ListEventsItem) -> Unit)
             intent.putExtra(DetailEventActivity.EXTRA_DATA, finishedItem)
             holder.itemView.context.startActivity(intent)
         }
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = CardListEventBinding.inflate(android.view.LayoutInflater.from(parent.context), parent, false)
+        val binding = CardListEventBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
-    }
-
-    inner class EventViewHolder(private val binding: CardListEventBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-        fun bind(event: ListEventsItem) {
-            binding.tvNameEvent.text = event.name
-            binding.tvDescEvent.text = event.description
-        }
     }
 }

@@ -4,15 +4,14 @@ import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.example.ujiandicoding.data.response.ListEventsItem
 import kotlinx.parcelize.Parcelize
 
 @Entity
 @Parcelize
-data class Events (
+data class Events(
     @PrimaryKey(autoGenerate = true)
     @field:ColumnInfo(name = "id")
-    var id: Int ,
+    var id: Int,
 
     @field:ColumnInfo(name = "name")
     var name: String? = null,
@@ -30,7 +29,7 @@ data class Events (
     var endTime: String? = null,
 
     @field:ColumnInfo(name = "isFavo")
-    var isFavo: Boolean = true,
+    var isFavo: Boolean = false,
 
     @field:ColumnInfo(name = "summary")
     var summary: String? = null,
@@ -43,6 +42,4 @@ data class Events (
 
     @field:ColumnInfo(name = "imageLogo")
     var imageLogo: String? = null
-
 ): Parcelable
-

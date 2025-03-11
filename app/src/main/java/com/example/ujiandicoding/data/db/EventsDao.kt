@@ -1,34 +1,31 @@
 package com.example.ujiandicoding.data.db
 
 import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 
 @Dao
 interface EventsDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(events: Events)
+    suspend fun insert(events: Events)
 
     @Delete
-    fun delete(events: Events)
+    suspend fun delete(events: Events)
 
     @Query("SELECT * from events ORDER BY id ASC")
     fun getAllEvents(): LiveData<List<Events>>
 
     @Query("SELECT EXISTS(SELECT 1 FROM events WHERE id = :eventId)")
-    fun isEventFavorited(eventId: Int): LiveData<Boolean>
+    suspend fun isEventFavorited(eventId: Int): Boolean
 
     @Query("SELECT * FROM events WHERE isFavo = 1")
     fun getFavoriteEvents(): LiveData<List<Events>>
 
     @Update
-    fun update(events: Events)
+    suspend fun update(events: Events)
 
     @Query("SELECT * FROM events WHERE name LIKE '%' || :keyword || '%' OR description LIKE '%' || :keyword || '%'")
     fun searchEvents(keyword: String): LiveData<List<Events>>
 
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertAll(events: List<Events>)
 }

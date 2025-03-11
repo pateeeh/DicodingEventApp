@@ -9,13 +9,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.example.ujiandicoding.R
 import com.example.ujiandicoding.data.db.Events
-import com.example.ujiandicoding.data.repository.AppExecutors
 import com.example.ujiandicoding.data.repository.EventsRepository
 import com.example.ujiandicoding.data.response.ListEventsItem
 import com.example.ujiandicoding.databinding.ActivityDetailEventBinding
+import kotlinx.coroutines.launch
 
 class DetailEventActivity : AppCompatActivity() {
 
@@ -36,7 +37,7 @@ class DetailEventActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = "Detail Event"
 
-        eventsRepository = EventsRepository(application, AppExecutors())
+        eventsRepository = EventsRepository(application)
         detailViewModel = ViewModelProvider(this, DetailViewModelFactory(eventsRepository))[DetailViewModel::class.java]
 
         val data = intent.getParcelableExtra<Parcelable>(EXTRA_DATA)
@@ -76,11 +77,9 @@ class DetailEventActivity : AppCompatActivity() {
                     Log.e("DetailEventActivity", "Unknown data type received")
                 }
             }
-            // Observe isFavorited LiveData
-            // Pindahkan pemanggilan observe ke sini, setelah eventId diinisialisasi
-            detailViewModel.isEventFavorited(eventId).observe(this) { favorited ->
-                Log.d("DetailEventActivity", "isEventFavorited observe: favorited = $favorited")
-                isFavorited = favorited
+            // Observe isFavorited LiveData menggunakan coroutine
+            lifecycleScope.launch {
+                isFavorited = detailViewModel.isEventFavorited(eventId)
                 setFavoriteIcon(isFavorited)
             }
 
@@ -118,12 +117,14 @@ class DetailEventActivity : AppCompatActivity() {
             image = eventData?.imageLogo ?: "",
             beginTime = eventData?.beginTime ?: "",
             endTime = eventData?.endTime ?: "",
-            isFavo = true
+            isFavo = true // Set isFavo to true when adding to favorites
         )
-        detailViewModel.insert(event)
-        isFavorited = true // Ubah menjadi true saat menambahkan ke favorit
-        setFavoriteIcon(isFavorited)
-        Toast.makeText(this, getString(R.string.added_fav_success), Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            detailViewModel.insert(event)
+            isFavorited = true // Ubah menjadi true saat menambahkan ke favorit
+            setFavoriteIcon(isFavorited)
+            Toast.makeText(this@DetailEventActivity, getString(R.string.added_fav_success), Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun showDeleteConfirmationDialog() {
@@ -138,12 +139,14 @@ class DetailEventActivity : AppCompatActivity() {
                     image = eventData?.imageLogo ?: "",
                     beginTime = eventData?.beginTime ?: "",
                     endTime = eventData?.endTime ?: "",
-                    isFavo = false
+                    isFavo = false // Set isFavo to false when removing from favorites
                 )
-                detailViewModel.delete(event)
-                isFavorited = false // Ubah menjadi false saat menghapus dari favorit
-                setFavoriteIcon(isFavorited)
-                Toast.makeText(this, "Berhasil dihapus dari favorit", Toast.LENGTH_SHORT).show()
+                lifecycleScope.launch {
+                    detailViewModel.delete(event)
+                    isFavorited = false // Ubah menjadi false saat menghapus dari favorit
+                    setFavoriteIcon(isFavorited)
+                    Toast.makeText(this@DetailEventActivity, "Berhasil dihapus dari favorit", Toast.LENGTH_SHORT).show()
+                }
             }
             .setNegativeButton("Tidak") { dialog, _ -> dialog.dismiss() }
             .show()

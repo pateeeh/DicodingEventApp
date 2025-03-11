@@ -2,6 +2,7 @@ package com.example.ujiandicoding.ui.adapter
 
 import android.content.Intent
 import android.text.Html
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -28,10 +29,10 @@ class ListEventAdapter: ListAdapter<ListEventsItem, ListEventAdapter.ViewHolder>
     companion object{
         val DIFF_CALLBACK = object : DiffUtil.ItemCallback<ListEventsItem>(){
             override fun areItemsTheSame(oldItem: ListEventsItem, newItem: ListEventsItem): Boolean {
-                return oldItem.id == newItem.id // Bandingkan berdasarkan ID
+                return oldItem.id == newItem.id
             }
             override fun areContentsTheSame(oldItem: ListEventsItem, newItem: ListEventsItem): Boolean {
-                return oldItem == newItem // Bandingkan seluruh konten
+                return oldItem == newItem
             }
         }
     }
@@ -45,11 +46,10 @@ class ListEventAdapter: ListAdapter<ListEventsItem, ListEventAdapter.ViewHolder>
             intent.putExtra(DetailEventActivity.EXTRA_DATA, eventsItem)
             holder.itemView.context.startActivity(intent)
         }
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val binding = CardListEventBinding.inflate(android.view.LayoutInflater.from(parent.context), parent, false)
+        val binding = CardListEventBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
 }

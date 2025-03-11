@@ -1,22 +1,30 @@
 package com.example.ujiandicoding.ui
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.ujiandicoding.data.db.Events
 import com.example.ujiandicoding.data.repository.EventsRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-class DetailViewModel(private val eventsRepository: EventsRepository) :
-    ViewModel() {
-    fun insert(events: Events) {
-        eventsRepository.insert(events)
+class DetailViewModel(private val eventsRepository: EventsRepository) : ViewModel() {
+
+    suspend fun insert(events: Events) {
+        withContext(Dispatchers.IO) {
+            eventsRepository.insert(events)
+        }
     }
 
-    fun delete(events: Events) {
-        eventsRepository.delete(events)
+    suspend fun delete(events: Events) {
+        withContext(Dispatchers.IO) {
+            eventsRepository.delete(events)
+        }
     }
 
-    fun isEventFavorited(eventId: Int): LiveData<Boolean> {
-        return eventsRepository.isEventFavorited(eventId)
+    suspend fun isEventFavorited(eventId: Int): Boolean {
+        return withContext(Dispatchers.IO) {
+            eventsRepository.isEventFavorited(eventId)
+        }
     }
 }
+

@@ -6,7 +6,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class ListEventsItem(
-
 	@field:SerializedName("summary")
 	val summary: String,
 

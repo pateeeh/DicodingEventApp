@@ -1,11 +1,9 @@
 package com.example.ujiandicoding.ui.favorite
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import com.example.ujiandicoding.data.db.Events
 import com.example.ujiandicoding.data.repository.EventsRepository
+import kotlinx.coroutines.launch
 
 class FavoriteViewModel(private val eventsRepository: EventsRepository) : ViewModel() {
 
@@ -20,11 +18,13 @@ class FavoriteViewModel(private val eventsRepository: EventsRepository) : ViewMo
     }
 
     private fun getFavoriteEvents() {
-        _isLoading.value = true
-        val list = eventsRepository.getFavoriteEvents()
-        list.observeForever {
-            _eventList.value = it
-            _isLoading.value = false
+        viewModelScope.launch {
+            _isLoading.value = true
+            val result = eventsRepository.getFavoriteEvents()
+            result.observeForever {
+                _eventList.value = it
+                _isLoading.value = false
+            }
         }
     }
 }

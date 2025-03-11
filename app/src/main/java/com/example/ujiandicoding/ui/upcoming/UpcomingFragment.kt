@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.ujiandicoding.data.repository.AppExecutors
 import com.example.ujiandicoding.data.repository.EventsRepository
 import com.example.ujiandicoding.data.response.ListEventsItem
 import com.example.ujiandicoding.databinding.FragmentUpcomingBinding
@@ -31,7 +30,7 @@ class UpcomingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        eventsRepository = EventsRepository(requireActivity().application, AppExecutors())
+        eventsRepository = EventsRepository(requireActivity().application)
         val factory = UpcomingViewModelFactory(eventsRepository)
         upcomingViewModel = ViewModelProvider(this, factory).get(UpcomingViewModel::class.java)
         upcomingViewModel.eventList.observe(viewLifecycleOwner) { event ->
@@ -58,6 +57,4 @@ class UpcomingFragment : Fragment() {
     private fun showLoading(isLoading: Boolean) {
         _binding?.progressBar?.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
-
-
 }
