@@ -80,31 +80,28 @@ class DetailEventActivity : AppCompatActivity() {
             // Observe isFavorited LiveData menggunakan coroutine
             lifecycleScope.launch {
                 isFavorited = detailViewModel.isEventFavorited(eventId)
-                setFavoriteIcon(isFavorited)
+                updateFavoriteButtons()
             }
 
-            binding.fabFav.setOnClickListener {
-                if (isFavorited) {
-                    // Delete from favorites
-                    showDeleteConfirmationDialog()
-                } else {
-                    // Add to favorites
-                    addToFavorites()
-                }
+            binding.btnAddFavorite.setOnClickListener {
+                addToFavorites()
+            }
+
+            binding.btnRemoveFavorite.setOnClickListener {
+                showDeleteConfirmationDialog()
             }
         } else {
             Log.e("DetailEventActivity", "User Data is Null")
         }
     }
 
-    private fun setFavoriteIcon(isFavorited: Boolean) {
-        Log.d("DetailEventActivity", "setFavoriteIcon: isFavorited = $isFavorited")
+    private fun updateFavoriteButtons() {
         if (isFavorited) {
-            binding.fabFav.setImageResource(R.drawable.ic_favorite)
-            binding.fabFav.contentDescription = getString(R.string.remove_fav)
+            binding.btnAddFavorite.isEnabled = false
+            binding.btnRemoveFavorite.isEnabled = true
         } else {
-            binding.fabFav.setImageResource(R.drawable.ic_favorite_outline)
-            binding.fabFav.contentDescription = getString(R.string.add_fav)
+            binding.btnAddFavorite.isEnabled = true
+            binding.btnRemoveFavorite.isEnabled = false
         }
     }
 
@@ -120,9 +117,10 @@ class DetailEventActivity : AppCompatActivity() {
             isFavo = true // Set isFavo to true when adding to favorites
         )
         lifecycleScope.launch {
+            Log.d("DetailEventActivity", "Adding to favorites: $event")
             detailViewModel.insert(event)
             isFavorited = true // Ubah menjadi true saat menambahkan ke favorit
-            setFavoriteIcon(isFavorited)
+            updateFavoriteButtons()
             Toast.makeText(this@DetailEventActivity, getString(R.string.added_fav_success), Toast.LENGTH_SHORT).show()
         }
     }
@@ -142,9 +140,10 @@ class DetailEventActivity : AppCompatActivity() {
                     isFavo = false // Set isFavo to false when removing from favorites
                 )
                 lifecycleScope.launch {
+                    Log.d("DetailEventActivity", "Removing from favorites: $event")
                     detailViewModel.delete(event)
                     isFavorited = false // Ubah menjadi false saat menghapus dari favorit
-                    setFavoriteIcon(isFavorited)
+                    updateFavoriteButtons()
                     Toast.makeText(this@DetailEventActivity, "Berhasil dihapus dari favorit", Toast.LENGTH_SHORT).show()
                 }
             }

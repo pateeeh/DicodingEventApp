@@ -7,6 +7,7 @@ import androidx.lifecycle.switchMap
 import com.example.ujiandicoding.data.db.Events
 import com.example.ujiandicoding.data.db.EventsDao
 import com.example.ujiandicoding.data.db.EventsRoomDatabase
+import com.example.ujiandicoding.data.response.ListEventResponse
 import com.example.ujiandicoding.data.response.ListEventsItem
 import com.example.ujiandicoding.data.retrofit.ApiConfig
 import kotlinx.coroutines.Dispatchers
@@ -43,61 +44,25 @@ class EventsRepository(application: Application) {
 
     fun getFavoriteEvents(): LiveData<List<Events>> = mEventsDao.getFavoriteEvents()
 
-    suspend fun findFinishedEvents(eventList: MutableLiveData<List<ListEventsItem>>, isLoading: MutableLiveData<Boolean>) {
-        isLoading.postValue(true)
-        try {
-            val response = withContext(Dispatchers.IO) { apiService.getFinishedEvents() }
-            val result = response.listEvents ?: emptyList()
-            val eventsList = result.map {
-                Events(
-                    id = it.id,
-                    name = it.name,
-                    description = it.description,
-                    image = it.imageLogo,
-                    beginTime = it.beginTime,
-                    endTime = it.endTime,
-                    summary = it.summary,
-                    ownerName = it.ownerName,
-                    mediaCover = it.mediaCover,
-                    imageLogo = it.imageLogo,
-                    isFavo = false
-                )
+    suspend fun findFinishedEvents(): List<ListEventsItem>? {
+        return withContext(Dispatchers.IO) {
+            val response = apiService.getFinishedEvents()
+            if (response.isSuccessful) {
+                response.body()?.listEvents
+            } else {
+                null
             }
-            withContext(Dispatchers.IO) { mEventsDao.insertAll(eventsList) }
-            eventList.postValue(result)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            isLoading.postValue(false)
         }
     }
 
-    suspend fun findUpcomingEvents(eventList: MutableLiveData<List<ListEventsItem>>, isLoading: MutableLiveData<Boolean>) {
-        isLoading.postValue(true)
-        try {
-            val response = withContext(Dispatchers.IO) { apiService.getUpcomingEvents() }
-            val result = response.listEvents ?: emptyList()
-            val eventsList = result.map {
-                Events(
-                    id = it.id,
-                    name = it.name,
-                    description = it.description,
-                    image = it.imageLogo,
-                    beginTime = it.beginTime,
-                    endTime = it.endTime,
-                    summary = it.summary,
-                    ownerName = it.ownerName,
-                    mediaCover = it.mediaCover,
-                    imageLogo = it.imageLogo,
-                    isFavo = false
-                )
+    suspend fun findUpcomingEvents(): List<ListEventsItem>? {
+        return withContext(Dispatchers.IO) {
+            val response = apiService.getUpcomingEvents()
+            if (response.isSuccessful) {
+                response.body()?.listEvents
+            } else {
+                null
             }
-            withContext(Dispatchers.IO) { mEventsDao.insertAll(eventsList) }
-            eventList.postValue(result)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            isLoading.postValue(false)
         }
     }
 

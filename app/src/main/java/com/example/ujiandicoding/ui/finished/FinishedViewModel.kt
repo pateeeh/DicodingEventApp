@@ -34,9 +34,9 @@ class FinishedViewModel(private val eventsRepository: EventsRepository) : ViewMo
     fun findFinishedEvents() {
         viewModelScope.launch {
             _isLoading.value = true
-            withContext(Dispatchers.IO) {
-                eventsRepository.findFinishedEvents(_eventList, _isLoading)
-            }
+            val events = eventsRepository.findFinishedEvents()
+            _eventList.postValue(events ?: emptyList())
+            _isLoading.postValue(false)
         }
     }
 
@@ -48,4 +48,3 @@ class FinishedViewModel(private val eventsRepository: EventsRepository) : ViewMo
         searchQuery.value = "" // Kosongkan query untuk menampilkan data asli
     }
 }
-

@@ -20,7 +20,9 @@ class UpcomingViewModel(private val eventsRepository: EventsRepository) : ViewMo
     private fun findUpcomingEvents() {
         viewModelScope.launch {
             _isLoading.value = true
-            eventsRepository.findUpcomingEvents(_eventList, _isLoading)
+            val events = eventsRepository.findUpcomingEvents()
+            _eventList.postValue(events ?: emptyList())
+            _isLoading.postValue(false)
         }
     }
 }
