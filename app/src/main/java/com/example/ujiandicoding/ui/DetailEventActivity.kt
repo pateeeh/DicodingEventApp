@@ -47,13 +47,13 @@ class DetailEventActivity : AppCompatActivity() {
                     // Data adalah objek Events
                     eventId = data.id
                     Glide.with(this)
-                        .load(data.image)
+                        .load(data.mediaCover)
                         .into(binding.image)
                     binding.tvNameEvent.text = data.name
                     val cleanDesc = data.description?.replace(Regex("<img[^>]*>"), "")
                     binding.tvDesc.text = Html.fromHtml(cleanDesc, Html.FROM_HTML_MODE_LEGACY)
-                    binding.tvSummary.text = ""
-                    binding.tvOwnerName.text = ""
+                    binding.tvSummary.text = data.summary
+                    binding.tvOwnerName.text = data.ownerName
                     binding.tvBeginTime.text = data.beginTime
                     binding.tvEndTime.text = data.endTime
                 }
