@@ -7,9 +7,11 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [Events::class], version = 2, exportSchema = false)
+@Database(entities = [Events::class, Setting::class], version = 3, exportSchema = false)
 abstract class EventsRoomDatabase : RoomDatabase() {
     abstract fun eventsDao(): EventsDao
+
+    abstract fun settingDao(): SettingDao
 
     companion object {
         @Volatile
@@ -23,6 +25,7 @@ abstract class EventsRoomDatabase : RoomDatabase() {
                     EventsRoomDatabase::class.java, "events_database"
                 )
                     .addMigrations(MIGRATION_1_2) // Tambahkan migrasi
+                    .addMigrations(MIGRATION_2_3)
                     .build()
                 INSTANCE = instance
                 instance
@@ -36,6 +39,17 @@ abstract class EventsRoomDatabase : RoomDatabase() {
                 database.execSQL("ALTER TABLE Events ADD COLUMN ownerName TEXT DEFAULT NULL")
                 database.execSQL("ALTER TABLE Events ADD COLUMN mediaCover TEXT DEFAULT NULL")
                 database.execSQL("ALTER TABLE Events ADD COLUMN imageLogo TEXT DEFAULT NULL")
+            }
+        }
+
+        private val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("""
+            CREATE TABLE IF NOT EXISTS settings (
+                id INTEGER PRIMARY KEY NOT NULL,
+                notificationsEnabled INTEGER NOT NULL DEFAULT 0
+            )
+        """.trimIndent())
             }
         }
     }

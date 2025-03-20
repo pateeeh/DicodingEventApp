@@ -1,8 +1,6 @@
 package com.example.ujiandicoding.ui
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.example.ujiandicoding.data.db.Events
 import com.example.ujiandicoding.data.repository.EventsRepository

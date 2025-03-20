@@ -47,7 +47,7 @@ class DetailEventActivity : AppCompatActivity() {
                     // Data adalah objek Events
                     eventId = data.id
                     Glide.with(this)
-                        .load(data.mediaCover)
+                        .load(data.image)
                         .into(binding.image)
                     binding.tvNameEvent.text = data.name
                     val cleanDesc = data.description?.replace(Regex("<img[^>]*>"), "")

@@ -1,17 +1,26 @@
 package com.example.ujiandicoding.ui.setting
 
+import SettingViewModel
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import com.example.ujiandicoding.databinding.FragmentSettingBinding
+import kotlinx.coroutines.launch
 
 class SettingFragment : Fragment() {
     private var _binding: FragmentSettingBinding? = null
     private val binding get() = _binding!!
+
+    // Gunakan viewModels untuk mendapatkan ViewModel dengan Factory
+    private val settingsViewModel: SettingViewModel by viewModels {
+        SettingViewModelFactory(requireActivity().application, SettingPreferences.getInstance(requireActivity().application.dataStore))
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -23,10 +32,6 @@ class SettingFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // Ambil dataStore dari requireContext().applicationContext
-        val pref = SettingPreferences.getInstance(requireContext().applicationContext.dataStore)
-        val settingsViewModel = ViewModelProvider(this, SettingViewModelFactory(pref)).get(SettingViewModel::class.java)
 
         settingsViewModel.getThemeSettings().observe(viewLifecycleOwner) { isDarkModeActive ->
             if (isDarkModeActive) {
@@ -40,6 +45,16 @@ class SettingFragment : Fragment() {
 
         binding.switchTheme.setOnCheckedChangeListener { _, isChecked ->
             settingsViewModel.saveThemeSetting(isChecked)
+        }
+
+        binding.switchNotification.setOnCheckedChangeListener { _, isChecked ->
+            settingsViewModel.setNotificationsEnabled(requireContext(), isChecked)
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            settingsViewModel.settings.observe(viewLifecycleOwner) { setting ->
+                binding.switchNotification.isChecked = setting?.notificationsEnabled ?: false
+            }
         }
     }
 
