@@ -1,22 +1,21 @@
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.example.ujiandicoding.data.db.EventsRoomDatabase
 import com.example.ujiandicoding.data.db.Setting
 import com.example.ujiandicoding.ui.setting.EventWorker
 import com.example.ujiandicoding.ui.setting.SettingPreferences
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class SettingViewModel(application: Application, private val pref: SettingPreferences) : AndroidViewModel(application) {
 
     private val settingDao = EventsRoomDatabase.getDatabase(application).settingDao()
-    val settings: LiveData<Setting?> = settingDao.getSettings().asLiveData()
+    val settings: Flow<Setting?> = settingDao.getSettings()
 
     init {
         initializeSetting()
@@ -31,8 +30,8 @@ class SettingViewModel(application: Application, private val pref: SettingPrefer
         }
     }
 
-    fun getThemeSettings(): LiveData<Boolean> {
-        return pref.getThemeSetting().asLiveData()
+    fun getThemeSettings(): Flow<Boolean> {
+        return pref.getThemeSetting()
     }
 
     fun saveThemeSetting(isDarkModeActive: Boolean) {
@@ -47,10 +46,14 @@ class SettingViewModel(application: Application, private val pref: SettingPrefer
             val newSetting = currentSetting.copy(notificationsEnabled = enabled)
             settingDao.updateSetting(newSetting)
 
+            val workManager = WorkManager.getInstance(context)
+
             if (enabled) {
+                Log.d("SettingViewModel", "Starting EventWorker")
                 EventWorker.startPeriodicWork(context)
             } else {
-                WorkManager.getInstance(context).cancelUniqueWork(EventWorker.TAG)
+                Log.d("SettingViewModel", "Stopping EventWorker")
+                workManager.cancelUniqueWork(EventWorker.TAG)
             }
         }
     }
