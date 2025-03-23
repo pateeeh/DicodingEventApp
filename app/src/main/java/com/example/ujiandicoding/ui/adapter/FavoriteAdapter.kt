@@ -13,9 +13,9 @@ import com.example.ujiandicoding.databinding.CardListEventBinding
 import com.example.ujiandicoding.ui.DetailEventActivity
 import com.example.ujiandicoding.ui.DetailEventActivity.Companion.EXTRA_DATA
 
-class FavoriteAdapter : ListAdapter<Events, FavoriteAdapter.MyViewHolder>(DIFF_CALLBACK) {
+class FavoriteAdapter: ListAdapter<Events, FavoriteAdapter.MyViewHolder>(DIFF_CALLBACK) {
 
-    class MyViewHolder(val binding: CardListEventBinding) : RecyclerView.ViewHolder(binding.root) {
+    class MyViewHolder(private val binding: CardListEventBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(event: Events) {
             binding.tvNameEvent.text = event.name
             val cleanDesc = event.description?.replace(Regex("<img[^>]*>"), "")

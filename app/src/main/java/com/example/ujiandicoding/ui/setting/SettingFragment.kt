@@ -1,7 +1,5 @@
 package com.example.ujiandicoding.ui.setting
 
-import SettingViewModel
-import SettingViewModelFactory
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context

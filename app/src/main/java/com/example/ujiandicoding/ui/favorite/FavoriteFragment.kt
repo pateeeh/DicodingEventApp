@@ -6,13 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.ujiandicoding.data.db.Events
 import com.example.ujiandicoding.data.repository.EventsRepository
 import com.example.ujiandicoding.databinding.FragmentFavoriteBinding
 import com.example.ujiandicoding.ui.adapter.FavoriteAdapter
-import kotlinx.coroutines.launch
 
 class FavoriteFragment : Fragment() {
 
@@ -33,7 +31,7 @@ class FavoriteFragment : Fragment() {
         val eventsRepository = EventsRepository(requireActivity().application)
         favoriteViewModel = ViewModelProvider(this,
             FavoriteViewModelFactory(eventsRepository)
-        ).get(FavoriteViewModel::class.java)
+        )[FavoriteViewModel::class.java]
 
         // Inisialisasi RecyclerView dan Adapter
         adapter = FavoriteAdapter()

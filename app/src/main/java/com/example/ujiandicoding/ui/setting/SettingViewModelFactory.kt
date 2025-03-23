@@ -1,7 +1,8 @@
+package com.example.ujiandicoding.ui.setting
+
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.ujiandicoding.ui.setting.SettingPreferences
 
 class SettingViewModelFactory(
     private val application: Application,

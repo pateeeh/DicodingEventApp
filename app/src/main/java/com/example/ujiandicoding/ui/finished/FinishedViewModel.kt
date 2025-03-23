@@ -3,9 +3,7 @@ package com.example.ujiandicoding.ui.finished
 import androidx.lifecycle.*
 import com.example.ujiandicoding.data.repository.EventsRepository
 import com.example.ujiandicoding.data.response.ListEventsItem
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class FinishedViewModel(private val eventsRepository: EventsRepository) : ViewModel() {
     private val _eventList = MutableLiveData<List<ListEventsItem>>()
@@ -13,10 +11,8 @@ class FinishedViewModel(private val eventsRepository: EventsRepository) : ViewMo
     private val _isLoading = MutableLiveData<Boolean>()
     val isLoading: LiveData<Boolean> = _isLoading
 
-    // LiveData untuk pencarian
     private val searchQuery = MutableLiveData<String>()
 
-    // Transform hasil pencarian agar tidak merusak data asli
     val searchedEvents: LiveData<List<ListEventsItem>> = MediatorLiveData<List<ListEventsItem>>().apply {
         addSource(_eventList) { value = filterEvents(it, searchQuery.value) }
         addSource(searchQuery) { value = filterEvents(_eventList.value, it) }
@@ -31,7 +27,7 @@ class FinishedViewModel(private val eventsRepository: EventsRepository) : ViewMo
         findFinishedEvents()
     }
 
-    fun findFinishedEvents() {
+    private fun findFinishedEvents() {
         viewModelScope.launch {
             _isLoading.value = true
             val events = eventsRepository.findFinishedEvents()
@@ -44,7 +40,5 @@ class FinishedViewModel(private val eventsRepository: EventsRepository) : ViewMo
         searchQuery.value = query
     }
 
-    fun clearSearch() {
-        searchQuery.value = "" // Kosongkan query untuk menampilkan data asli
-    }
+
 }

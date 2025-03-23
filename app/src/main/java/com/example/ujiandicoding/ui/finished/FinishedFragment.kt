@@ -8,13 +8,11 @@ import android.widget.Toast
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.ujiandicoding.data.repository.EventsRepository
 import com.example.ujiandicoding.data.response.ListEventsItem
 import com.example.ujiandicoding.databinding.FragmentFinishedBinding
 import com.example.ujiandicoding.ui.adapter.ListFinishedAdapter
-import kotlinx.coroutines.launch
 
 class FinishedFragment : Fragment() {
 

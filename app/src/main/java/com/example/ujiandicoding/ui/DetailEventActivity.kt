@@ -18,6 +18,7 @@ import com.example.ujiandicoding.data.response.ListEventsItem
 import com.example.ujiandicoding.databinding.ActivityDetailEventBinding
 import kotlinx.coroutines.launch
 
+@Suppress("DEPRECATION")
 class DetailEventActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityDetailEventBinding

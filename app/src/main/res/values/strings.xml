@@ -18,4 +18,9 @@
     <string name="remove_fav">Are you sure want to remove from your favorite?</string>
     <string name="remove_fav_success">Success Remove From Favorite</string>
     <string name="added_fav_success">Success Add To Favorite</string>
+    <string name="your_favorite_events">Your Favorite Events</string>
+    <string name="enable_dark_mode">Enable dark mode</string>
+    <string name="daily_reminder">Daily Reminder</string>
+    <string name="enable_notification">Enable Notification</string>
+    <string name="jangan_sampai_ketinggalan">Jangan Sampai Ketinggalan!</string>
 </resources>

@@ -13,7 +13,7 @@ import com.example.ujiandicoding.ui.DetailEventActivity
 import com.example.ujiandicoding.ui.adapter.ListEventAdapter.Companion.DIFF_CALLBACK
 
 class ListFinishedAdapter(private val onFavoriteClick: (ListEventsItem) -> Unit): ListAdapter<ListEventsItem, ListFinishedAdapter.ViewHolder>(DIFF_CALLBACK) {
-    class ViewHolder(val binding: CardListEventBinding) : RecyclerView.ViewHolder(binding.root){
+    class ViewHolder(private val binding : CardListEventBinding) : RecyclerView.ViewHolder(binding.root){
         fun bind(eventsItem: ListEventsItem){
             Glide.with(itemView.context)
                 .load(eventsItem.imageLogo)

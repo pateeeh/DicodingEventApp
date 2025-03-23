@@ -11,11 +11,10 @@ import com.bumptech.glide.Glide
 import com.example.ujiandicoding.data.response.ListEventsItem
 import com.example.ujiandicoding.databinding.CardListEventBinding
 import com.example.ujiandicoding.ui.DetailEventActivity
-import com.example.ujiandicoding.ui.DetailEventActivity.Companion.EXTRA_DATA
 
 class ListEventAdapter: ListAdapter<ListEventsItem, ListEventAdapter.ViewHolder>(DIFF_CALLBACK) {
 
-    class ViewHolder(val binding: CardListEventBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(private val binding: CardListEventBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(eventsItem: ListEventsItem){
             Glide.with(itemView.context)
                 .load(eventsItem.imageLogo)

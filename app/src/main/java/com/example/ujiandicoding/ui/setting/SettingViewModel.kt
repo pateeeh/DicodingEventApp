@@ -1,3 +1,5 @@
+package com.example.ujiandicoding.ui.setting
+
 import android.app.Application
 import android.content.Context
 import android.util.Log
@@ -6,8 +8,6 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.WorkManager
 import com.example.ujiandicoding.data.db.EventsRoomDatabase
 import com.example.ujiandicoding.data.db.Setting
-import com.example.ujiandicoding.ui.setting.EventWorker
-import com.example.ujiandicoding.ui.setting.SettingPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -49,10 +49,10 @@ class SettingViewModel(application: Application, private val pref: SettingPrefer
             val workManager = WorkManager.getInstance(context)
 
             if (enabled) {
-                Log.d("SettingViewModel", "Starting EventWorker")
+                Log.d("com.example.ujiandicoding.ui.setting.SettingViewModel", "Starting EventWorker")
                 EventWorker.startPeriodicWork(context)
             } else {
-                Log.d("SettingViewModel", "Stopping EventWorker")
+                Log.d("com.example.ujiandicoding.ui.setting.SettingViewModel", "Stopping EventWorker")
                 workManager.cancelUniqueWork(EventWorker.TAG)
             }
         }

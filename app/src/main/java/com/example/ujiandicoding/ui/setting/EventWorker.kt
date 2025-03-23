@@ -13,24 +13,19 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.work.Constraints
-import androidx.work.CoroutineWorker
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.WorkerParameters
+import androidx.work.*
 import com.example.ujiandicoding.MainActivity
 import com.example.ujiandicoding.R
 import com.example.ujiandicoding.data.response.ListEventsItem
 import com.example.ujiandicoding.data.retrofit.ApiConfig
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import java.net.UnknownHostException
 import java.util.concurrent.TimeUnit
 
-class EventWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
+class EventWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
 
     companion object {
         const val TAG = "EventWorker"
@@ -50,92 +45,76 @@ class EventWorker(context: Context, workerParams: WorkerParameters) : CoroutineW
 
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 TAG,
-                ExistingPeriodicWorkPolicy.KEEP,
+                ExistingPeriodicWorkPolicy.UPDATE,
                 workRequest
             )
         }
     }
 
-    override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
+    override fun doWork(): Result {
         Log.d(TAG, "EventWorker dimulai...")
+
         val sharedPreferences =
             applicationContext.getSharedPreferences("app_preferences", Context.MODE_PRIVATE)
         val notificationsEnabled = sharedPreferences.getBoolean("notifications_enabled", true)
 
+        if (!notificationsEnabled) {
+            Log.d(TAG, "Notifikasi dinonaktifkan, worker selesai tanpa aksi")
+            return Result.success()
+        }
+
         if (!isInternetAvailable(applicationContext)) {
             Log.e(TAG, "Tidak ada koneksi internet")
-            showNotificationError("Tidak ada Koneksi")
-            return@withContext Result.failure()
+            showNotificationError("Tidak ada koneksi internet")
+            return Result.failure()
         }
 
-        if (notificationsEnabled) {
-            try {
-                val event = getActiveEvent()
-                if (event != null) {
-                    showNotification(event)
-                    Log.d(TAG, "Notifikasi berhasil dikirim untuk event: ${event.name}")
-                    return@withContext Result.success()
-                } else {
-                    Log.e(TAG, "Tidak ada event yang tersedia")
-                    showNotificationError("Tidak ada event yang tersedia")
-                    return@withContext Result.failure()
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Terjadi kesalahan: ${e.message}", e)
-                showNotificationError("Terjadi kesalahan saat mengambil data event")
-                return@withContext Result.failure()
-            }
-        } else {
-            Log.d(TAG, "Notifikasi dinonaktifkan, worker selesai tanpa aksi")
-            return@withContext Result.success()
-        }
-    }
-
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                CHANNEL_NAME,
-                NotificationManager.IMPORTANCE_HIGH
-            ).apply {
-                description = "Notification channel for event updates"
-            }
-            val notificationManager =
-                applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
-        }
-    }
-
-    private suspend fun getActiveEvent(): ListEventsItem? = withContext(Dispatchers.IO) {
-        val apiService = ApiConfig.getApiService()
-        try {
-            val response = apiService.getUpcomingEvents(1)
-            if (response.isSuccessful) {
-                val eventList = response.body()?.listEvents
-                if (!eventList.isNullOrEmpty()) {
-                    return@withContext eventList.first()
-                } else {
-                    Log.e(TAG, "Daftar event kosong")
-                    return@withContext null
-                }
+        return try {
+            val event = getActiveEvent()
+            if (event != null) {
+                showNotification(event)
+                Log.d(TAG, "Notifikasi berhasil dikirim untuk event: ${event.name}")
+                Result.success()
             } else {
-                Log.e(TAG, "Gagal mendapatkan event dari API, kode: ${response.code()}")
-                return@withContext null
+                Log.e(TAG, "Tidak ada event yang tersedia")
+                showNotificationError("Tidak ada event yang tersedia")
+                Result.failure()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Terjadi kesalahan: ${e.message}", e)
+            showNotificationError("Terjadi kesalahan saat mengambil data event")
+            Result.failure()
+        }
+    }
+
+    private fun getActiveEvent(): ListEventsItem? {
+        val apiService = ApiConfig.getApiService()
+        return try {
+            runBlocking {
+                withContext(Dispatchers.IO) {
+                    val response = apiService.getUpcomingEvents(active = 1)
+                    if (response.isSuccessful) {
+                        val eventList = response.body()?.listEvents
+                        eventList?.firstOrNull()
+                    } else {
+                        Log.e(TAG, "Gagal mendapatkan event dari API, kode: ${response.code()}")
+                        null
+                    }
+                }
             }
         } catch (e: UnknownHostException) {
             Log.e(TAG, "Gagal terhubung ke server: ${e.message}", e)
-            return@withContext null
+            null
         } catch (e: IOException) {
             Log.e(TAG, "Terjadi kesalahan jaringan: ${e.message}", e)
-            return@withContext null
+            null
         } catch (e: Exception) {
             Log.e(TAG, "Terjadi kesalahan tak terduga: ${e.message}", e)
-            return@withContext null
+            null
         }
     }
 
     private fun showNotification(event: ListEventsItem) {
-        Log.d(TAG, "Memanggil createNotificationChannel()")
         createNotificationChannel()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
@@ -144,8 +123,7 @@ class EventWorker(context: Context, workerParams: WorkerParameters) : CoroutineW
                 android.Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Log.e(TAG, "Izin notifikasi tidak diberikan, tidak dapat menampilkan notifikasi.")
-            showNotificationError("Izin notifikasi tidak diberikan")
+            Log.e(TAG, "Izin notifikasi tidak diberikan")
             return
         }
 
@@ -169,18 +147,10 @@ class EventWorker(context: Context, workerParams: WorkerParameters) : CoroutineW
             .setAutoCancel(true)
 
         val notificationManager = NotificationManagerCompat.from(applicationContext)
-
-        Log.d(TAG, "Mengirim notifikasi untuk event: ${event.name}")
-
-        try {
-            notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
-        } catch (e: Exception) {
-            Log.e(TAG, "Gagal menampilkan notifikasi: ${e.message}", e)
-        }
+        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
     }
 
     private fun showNotificationError(message: String) {
-        Log.d(TAG, "Memanggil createNotificationChannel()")
         createNotificationChannel()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
@@ -189,7 +159,7 @@ class EventWorker(context: Context, workerParams: WorkerParameters) : CoroutineW
                 android.Manifest.permission.POST_NOTIFICATIONS
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            Log.e(TAG, "Izin notifikasi tidak diberikan, tidak dapat menampilkan notifikasi.")
+            Log.e(TAG, "Izin notifikasi tidak diberikan")
             return
         }
 
@@ -213,13 +183,19 @@ class EventWorker(context: Context, workerParams: WorkerParameters) : CoroutineW
             .setAutoCancel(true)
 
         val notificationManager = NotificationManagerCompat.from(applicationContext)
+        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
+    }
 
-        Log.d(TAG, "Mengirim notifikasi error: $message")
-
-        try {
-            notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
-        } catch (e: Exception) {
-            Log.e(TAG, "Gagal menampilkan notifikasi: ${e.message}", e)
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                CHANNEL_NAME,
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            val notificationManager =
+                applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
         }
     }
 

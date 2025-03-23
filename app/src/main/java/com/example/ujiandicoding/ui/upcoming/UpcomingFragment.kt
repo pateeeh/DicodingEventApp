@@ -32,7 +32,7 @@ class UpcomingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         eventsRepository = EventsRepository(requireActivity().application)
         val factory = UpcomingViewModelFactory(eventsRepository)
-        upcomingViewModel = ViewModelProvider(this, factory).get(UpcomingViewModel::class.java)
+        upcomingViewModel = ViewModelProvider(this, factory)[UpcomingViewModel::class.java]
         upcomingViewModel.eventList.observe(viewLifecycleOwner) { event ->
             setEventList(event)
         }

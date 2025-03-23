@@ -22,7 +22,7 @@
         android:id="@+id/tv_recom_for_you"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Recommended event for you!"
+        android:text="@string/jangan_sampai_ketinggalan"
         android:textSize="22sp"
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toStartOf="parent"

@@ -34,17 +34,17 @@ abstract class EventsRoomDatabase : RoomDatabase() {
 
         // Migrasi dari versi 1 ke 2 (Menambahkan kolom baru)
         private val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("ALTER TABLE Events ADD COLUMN summary TEXT DEFAULT NULL")
-                database.execSQL("ALTER TABLE Events ADD COLUMN ownerName TEXT DEFAULT NULL")
-                database.execSQL("ALTER TABLE Events ADD COLUMN mediaCover TEXT DEFAULT NULL")
-                database.execSQL("ALTER TABLE Events ADD COLUMN imageLogo TEXT DEFAULT NULL")
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE Events ADD COLUMN summary TEXT DEFAULT NULL")
+                db.execSQL("ALTER TABLE Events ADD COLUMN ownerName TEXT DEFAULT NULL")
+                db.execSQL("ALTER TABLE Events ADD COLUMN mediaCover TEXT DEFAULT NULL")
+                db.execSQL("ALTER TABLE Events ADD COLUMN imageLogo TEXT DEFAULT NULL")
             }
         }
 
         private val MIGRATION_2_3 = object : Migration(2, 3) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                database.execSQL("""
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("""
             CREATE TABLE IF NOT EXISTS settings (
                 id INTEGER PRIMARY KEY NOT NULL,
                 notificationsEnabled INTEGER NOT NULL DEFAULT 0
